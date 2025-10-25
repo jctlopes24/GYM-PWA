@@ -1,0 +1,515 @@
+# 🚀 GUIA COMPLETO DE TESTES POSTMAN - GYM PLATFORM API
+# Base URL: http://localhost:3000
+
+# ==========================================
+# 🔐 AUTENTICAÇÃO
+# ==========================================
+
+# 1.1 Registo de Cliente
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "cliente1",
+  "email": "cliente1@example.com",
+  "password": "Password123",
+  "firstName": "João",
+  "lastName": "Silva",
+  "phone": "912345678",
+  "dateOfBirth": "1990-01-01",
+  "gender": "male",
+  "role": "client"
+}
+
+# 1.2 Registo de Personal Trainer
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "trainer1",
+  "email": "trainer1@example.com",
+  "password": "Password123",
+  "firstName": "Maria",
+  "lastName": "Santos",
+  "phone": "987654321",
+  "dateOfBirth": "1985-05-15",
+  "gender": "female",
+  "role": "trainer",
+  "specialization": ["Musculação", "Cardio"],
+  "experience": 5,
+  "bio": "Personal trainer com 5 anos de experiência",
+  "hourlyRate": 50
+}
+
+# 1.3 Registo de Administrador
+POST http://localhost:3000/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "admin1",
+  "email": "admin1@example.com",
+  "password": "Password123",
+  "firstName": "Carlos",
+  "lastName": "Admin",
+  "phone": "999999999",
+  "role": "admin"
+}
+
+# 1.4 Login Cliente
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "cliente1",
+  "password": "Password123"
+}
+
+# 1.5 Login Personal Trainer
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "trainer1",
+  "password": "Password123"
+}
+
+# 1.6 Login Administrador
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin1",
+  "password": "Password123"
+}
+
+# 1.7 Login por QR Code
+POST http://localhost:3000/api/auth/login/qr
+Content-Type: application/json
+
+{
+  "qrData": "{\"userId\":\"USER_ID\",\"username\":\"cliente1\",\"timestamp\":1640995200000}"
+}
+
+# 1.8 Verificar Token
+GET http://localhost:3000/api/auth/verify
+Authorization: Bearer {token}
+
+# 1.9 Gerar QR Code
+POST http://localhost:3000/api/auth/qr/generate
+Authorization: Bearer {token}
+
+# 1.10 Logout
+POST http://localhost:3000/api/auth/logout
+Authorization: Bearer {token}
+
+# ==========================================
+# 👥 GESTÃO DE UTILIZADORES
+# ==========================================
+
+# 2.1 Obter Perfil Atual
+GET http://localhost:3000/api/users/profile
+Authorization: Bearer {token}
+
+# 2.2 Atualizar Perfil
+PUT http://localhost:3000/api/users/profile
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{
+  "firstName": "João Atualizado",
+  "lastName": "Silva Atualizado",
+  "phone": "912345679",
+  "bio": "Nova bio do utilizador"
+}
+
+# 2.3 Atualizar Dados de Personal Trainer
+PUT http://localhost:3000/api/users/profile/trainer
+Authorization: Bearer {trainer_token}
+Content-Type: application/json
+
+{
+  "specialization": ["Musculação", "Cardio", "Funcional"],
+  "experience": 6,
+  "bio": "Personal trainer experiente",
+  "hourlyRate": 60
+}
+
+# 2.4 Listar Utilizadores
+GET http://localhost:3000/api/users?page=1&limit=10&role=client
+Authorization: Bearer {token}
+
+# 2.5 Listar Personal Trainers
+GET http://localhost:3000/api/users/trainers?page=1&limit=10&isApproved=true
+Authorization: Bearer {token}
+
+# 2.6 Obter Utilizador por ID
+GET http://localhost:3000/api/users/{user_id}
+Authorization: Bearer {token}
+
+# 2.7 Listar Clientes do Trainer
+GET http://localhost:3000/api/users/trainer/clients?page=1&limit=10
+Authorization: Bearer {trainer_token}
+
+# 2.8 Atribuir Cliente a Trainer
+POST http://localhost:3000/api/users/trainer/assign-client
+Authorization: Bearer {trainer_token}
+Content-Type: application/json
+
+{
+  "clientId": "CLIENT_ID",
+  "trainerId": "TRAINER_ID"
+}
+
+# 2.9 Solicitar Mudança de Trainer (Cliente)
+POST http://localhost:3000/api/users/client/request-trainer-change
+Authorization: Bearer {client_token}
+Content-Type: application/json
+
+{
+  "requestedTrainerId": "NEW_TRAINER_ID",
+  "reason": "Preciso de um trainer com especialização em yoga"
+}
+
+# ==========================================
+# 👨‍💼 FUNCIONALIDADES ADMINISTRATIVAS
+# ==========================================
+
+# 3.1 Aprovar Personal Trainer
+PUT http://localhost:3000/api/users/trainer/{trainer_id}/approve
+Authorization: Bearer {admin_token}
+Content-Type: application/json
+
+{
+  "isApproved": true,
+  "reason": "Documentação verificada e experiência comprovada"
+}
+
+# 3.2 Listar Pedidos de Mudança de Trainer
+GET http://localhost:3000/api/users/admin/trainer-change-requests?page=1&limit=10
+Authorization: Bearer {admin_token}
+
+# 3.3 Processar Pedido de Mudança
+PUT http://localhost:3000/api/users/admin/trainer-change/{client_id}
+Authorization: Bearer {admin_token}
+Content-Type: application/json
+
+{
+  "approved": true,
+  "reason": "Pedido aprovado após análise"
+}
+
+# 3.4 Ativar/Desativar Utilizador
+PUT http://localhost:3000/api/users/admin/user/{user_id}/toggle-status
+Authorization: Bearer {admin_token}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+# ==========================================
+# 🏋️‍♂️ PLANOS DE TREINO - PERSONAL TRAINERS
+# ==========================================
+
+# 4.1 Criar Exercício
+POST http://localhost:3000/api/workouts/exercises
+Authorization: Bearer {trainer_token}
+Content-Type: application/json
+
+{
+  "name": "Agachamento",
+  "description": "Exercício fundamental para pernas",
+  "muscleGroups": ["quadríceps", "glúteos"],
+  "equipment": ["peso_livre"],
+  "difficulty": "iniciante",
+  "instructions": "Mantenha as costas retas e desça até formar 90 graus",
+  "videoUrl": "https://example.com/video/agachamento"
+}
+
+# 4.2 Criar Exercício - Flexão
+POST http://localhost:3000/api/workouts/exercises
+Authorization: Bearer {trainer_token}
+Content-Type: application/json
+
+{
+  "name": "Flexão",
+  "description": "Exercício para peito e tríceps",
+  "muscleGroups": ["peito", "tríceps"],
+  "equipment": ["corpo_livre"],
+  "difficulty": "iniciante",
+  "instructions": "Mantenha o corpo alinhado e desça até quase tocar o chão",
+  "videoUrl": "https://example.com/video/flexao"
+}
+
+# 4.3 Criar Exercício - Prancha
+POST http://localhost:3000/api/workouts/exercises
+Authorization: Bearer {trainer_token}
+Content-Type: application/json
+
+{
+  "name": "Prancha",
+  "description": "Exercício isométrico para core",
+  "muscleGroups": ["abdômen", "core"],
+  "equipment": ["corpo_livre"],
+  "difficulty": "iniciante",
+  "instructions": "Mantenha o corpo reto como uma prancha",
+  "videoUrl": "https://example.com/video/prancha"
+}
+
+# 4.4 Listar Exercícios
+GET http://localhost:3000/api/workouts/exercises?page=1&limit=20&muscleGroups=quadríceps,glúteos&difficulty=iniciante
+Authorization: Bearer {trainer_token}
+
+# 4.5 Criar Plano de Treino
+POST http://localhost:3000/api/workouts/plans
+Authorization: Bearer {trainer_token}
+Content-Type: application/json
+
+{
+  "name": "Plano Iniciante - Musculação",
+  "description": "Plano para iniciantes em musculação",
+  "clientId": "CLIENT_ID",
+  "frequency": "3x",
+  "sessions": [
+    {
+      "dayOfWeek": "monday",
+      "exercises": [
+        {
+          "exercise": "EXERCISE_ID",
+          "sets": 3,
+          "reps": "8-12",
+          "weight": "peso corporal",
+          "restTime": "60 segundos",
+          "notes": "Foco na técnica",
+          "order": 1
+        },
+        {
+          "exercise": "EXERCISE_ID_2",
+          "sets": 3,
+          "reps": "10-15",
+          "weight": "peso corporal",
+          "restTime": "45 segundos",
+          "order": 2
+        }
+      ],
+      "sessionNotes": "Treino focado em técnica e movimento correto",
+      "estimatedDuration": 45,
+      "difficulty": "fácil"
+    },
+    {
+      "dayOfWeek": "wednesday",
+      "exercises": [
+        {
+          "exercise": "EXERCISE_ID_3",
+          "sets": 3,
+          "reps": "8-12",
+          "weight": "peso corporal",
+          "restTime": "60 segundos",
+          "order": 1
+        }
+      ],
+      "sessionNotes": "Segundo treino da semana",
+      "estimatedDuration": 40,
+      "difficulty": "fácil"
+    },
+    {
+      "dayOfWeek": "friday",
+      "exercises": [
+        {
+          "exercise": "EXERCISE_ID_4",
+          "sets": 3,
+          "reps": "8-12",
+          "weight": "peso corporal",
+          "restTime": "60 segundos",
+          "order": 1
+        }
+      ],
+      "sessionNotes": "Terceiro treino da semana",
+      "estimatedDuration": 40,
+      "difficulty": "fácil"
+    }
+  ],
+  "startDate": "2024-01-01",
+  "endDate": "2024-01-28",
+  "goals": ["ganho_massa", "força"],
+  "level": "iniciante",
+  "notes": "Plano personalizado para iniciante",
+  "totalWeeks": 4
+}
+
+# 4.6 Listar Planos do Trainer
+GET http://localhost:3000/api/workouts/plans?page=1&limit=10&clientId=CLIENT_ID&frequency=3x
+Authorization: Bearer {trainer_token}
+
+# 4.7 Obter Plano Específico
+GET http://localhost:3000/api/workouts/plans/{plan_id}
+Authorization: Bearer {trainer_token}
+
+# 4.8 Atualizar Plano de Treino
+PUT http://localhost:3000/api/workouts/plans/{plan_id}
+Authorization: Bearer {trainer_token}
+Content-Type: application/json
+
+{
+  "name": "Plano Iniciante - Musculação Atualizado",
+  "description": "Plano atualizado com novos exercícios",
+  "notes": "Plano melhorado após feedback do cliente"
+}
+
+# 4.9 Ativar/Desativar Plano
+PUT http://localhost:3000/api/workouts/plans/{plan_id}/toggle
+Authorization: Bearer {trainer_token}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+# 4.10 Estatísticas dos Planos
+GET http://localhost:3000/api/workouts/stats
+Authorization: Bearer {trainer_token}
+
+# ==========================================
+# 👤 PLANOS DE TREINO - CLIENTES
+# ==========================================
+
+# 5.1 Listar Planos do Cliente
+GET http://localhost:3000/api/client/workouts/plans?page=1&limit=10&isActive=true
+Authorization: Bearer {client_token}
+
+# 5.2 Obter Plano Específico
+GET http://localhost:3000/api/client/workouts/plans/{plan_id}
+Authorization: Bearer {client_token}
+
+# 5.3 Obter Treino do Dia
+GET http://localhost:3000/api/client/workouts/today
+Authorization: Bearer {client_token}
+
+# 5.4 Registrar Conclusão de Treino
+POST http://localhost:3000/api/client/workouts/logs
+Authorization: Bearer {client_token}
+Content-Type: application/json
+
+{
+  "workoutPlanId": "PLAN_ID",
+  "sessionId": "SESSION_ID",
+  "week": 1,
+  "dayOfWeek": "monday",
+  "actualDuration": 50,
+  "exercises": [
+    {
+      "exercise": "EXERCISE_ID",
+      "sets": [
+        {
+          "setNumber": 1,
+          "reps": 10,
+          "weight": "peso corporal",
+          "restTime": 60,
+          "notes": "Foi difícil",
+          "completed": true
+        },
+        {
+          "setNumber": 2,
+          "reps": 12,
+          "weight": "peso corporal",
+          "restTime": 60,
+          "completed": true
+        },
+        {
+          "setNumber": 3,
+          "reps": 8,
+          "weight": "peso corporal",
+          "restTime": 60,
+          "notes": "Falhei na última repetição",
+          "completed": true
+        }
+      ],
+      "notes": "Exercício executado com boa técnica"
+    }
+  ],
+  "overallNotes": "Treino bom, senti-me com energia",
+  "difficulty": "médio",
+  "energy": "alta",
+  "mood": "bom",
+  "painLevel": "nenhuma"
+}
+
+# 5.5 Histórico de Treinos
+GET http://localhost:3000/api/client/workouts/logs?page=1&limit=10&week=1&dayOfWeek=monday
+Authorization: Bearer {client_token}
+
+# 5.6 Estatísticas do Cliente
+GET http://localhost:3000/api/client/workouts/stats
+Authorization: Bearer {client_token}
+
+# ==========================================
+# 🔍 HEALTH CHECK
+# ==========================================
+
+# 6.1 Verificar Status do Servidor
+GET http://localhost:3000/health
+
+# ==========================================
+# 📋 ORDEM RECOMENDADA DE TESTES
+# ==========================================
+
+# 1. CONFIGURAÇÃO INICIAL
+# - Health check (6.1)
+# - Registo de utilizadores (1.1, 1.2, 1.3)
+
+# 2. AUTENTICAÇÃO
+# - Login de todos os tipos (1.4, 1.5, 1.6)
+# - Verificar tokens (1.8)
+
+# 3. GESTÃO DE UTILIZADORES
+# - Aprovar personal trainer (3.1)
+# - Atribuir cliente a trainer (2.8)
+# - Atualizar perfis (2.2, 2.3)
+
+# 4. PLANOS DE TREINO
+# - Criar exercícios (4.1, 4.2, 4.3)
+# - Criar plano de treino (4.5)
+# - Cliente visualizar plano (5.1, 5.2, 5.3)
+# - Registrar conclusão de treino (5.4)
+
+# 5. FUNCIONALIDADES AVANÇADAS
+# - Estatísticas (4.10, 5.6)
+# - Histórico (5.5)
+# - Filtros e pesquisa (4.4, 4.6)
+
+# ==========================================
+# 💡 DICAS IMPORTANTES
+# ==========================================
+
+# 1. Guarde os IDs das respostas para usar em requisições subsequentes
+# 2. Use os tokens corretos para cada tipo de utilizador
+# 3. Teste cenários de erro (dados inválidos, tokens expirados)
+# 4. Verifique as validações enviando dados incorretos
+# 5. Teste filtros com diferentes parâmetros de query
+
+# ==========================================
+# 🔧 VARIÁVEIS PARA SUBSTITUIR
+# ==========================================
+
+# {token} - Token JWT obtido no login
+# {trainer_token} - Token do personal trainer
+# {client_token} - Token do cliente
+# {admin_token} - Token do administrador
+# {user_id} - ID do utilizador
+# {plan_id} - ID do plano de treino
+# {exercise_id} - ID do exercício
+# {session_id} - ID da sessão de treino
+# {client_id} - ID do cliente
+# {trainer_id} - ID do personal trainer
+
+# ==========================================
+# 📊 CÓDIGOS DE RESPOSTA ESPERADOS
+# ==========================================
+
+# 200 - Sucesso
+# 201 - Criado com sucesso
+# 400 - Dados inválidos
+# 401 - Não autorizado
+# 403 - Acesso negado
+# 404 - Não encontrado
+# 500 - Erro interno do servidor
