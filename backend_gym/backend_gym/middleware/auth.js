@@ -14,7 +14,9 @@ export const authenticateToken = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Usar chave temporária se JWT_SECRET não estiver definido
+    const secret = process.env.JWT_SECRET || 'my_super_secret_jwt_key_2024_gym_management_system_xyz123';
+    const decoded = jwt.verify(token, secret);
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
