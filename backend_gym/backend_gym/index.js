@@ -1,6 +1,13 @@
+// Configurar variáveis de ambiente PRIMEIRO
+import dotenv from "dotenv";
+dotenv.config();
+
+// Verificar se as variáveis de ambiente foram carregadas
+console.log('JWT_SECRET carregado:', process.env.JWT_SECRET ? 'SIM' : 'NÃO');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import connectDB from "./config/db.js";
@@ -10,9 +17,6 @@ import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
 import workoutRoutes from "./routes/workouts.js";
 import clientWorkoutRoutes from "./routes/clientWorkouts.js";
-
-// Configurar variáveis de ambiente
-dotenv.config();
 
 // Conectar à base de dados
 connectDB();

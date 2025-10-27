@@ -8,9 +8,16 @@ const router = express.Router();
 
 // Gerar token JWT
 const generateToken = (userId) => {
+  console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Definido' : 'NÃO DEFINIDO');
+  console.log('JWT_EXPIRE:', process.env.JWT_EXPIRE || '7d');
+  
+  // Usar chave temporária se JWT_SECRET não estiver definido
+  const secret = process.env.JWT_SECRET || 'my_super_secret_jwt_key_2024_gym_management_system_xyz123';
+  console.log('Usando secret:', secret ? 'SIM' : 'NÃO');
+  
   return jwt.sign(
     { userId },
-    process.env.JWT_SECRET,
+    secret,
     { expiresIn: process.env.JWT_EXPIRE || '7d' }
   );
 };
@@ -55,22 +62,42 @@ router.post("/register", async (req, res) => {
     });
 
     // Gerar QR Code para login
-    const qrData = JSON.stringify({
-      userId: user._id,
-      username: user.username,
-      timestamp: Date.now()
-    });
-    
-    const qrCodeUrl = await QRCode.toDataURL(qrData);
-    user.qrCode = qrCodeUrl;
-    await user.save();
+    let qrCodeUrl = null;
+    try {
+      const qrData = JSON.stringify({
+        userId: user._id,
+        username: user.username,
+        timestamp: Date.now()
+      });
+      
+      qrCodeUrl = await QRCode.toDataURL(qrData);
+      user.qrCode = qrCodeUrl;
+      await user.save();
+      console.log('QR Code gerado com sucesso');
+    } catch (qrError) {
+      console.error('Erro ao gerar QR Code:', qrError);
+      // Continuar sem QR Code se houver erro
+    }
 
     // Gerar token
-    const token = generateToken(user._id);
+    let token;
+    try {
+      token = generateToken(user._id);
+      console.log('Token gerado com sucesso');
+    } catch (tokenError) {
+      console.error('Erro ao gerar token:', tokenError);
+      throw new Error('Erro ao gerar token de autenticação');
+    }
 
     // Atualizar último login
-    user.lastLogin = new Date();
-    await user.save();
+    try {
+      user.lastLogin = new Date();
+      await user.save();
+      console.log('Último login atualizado');
+    } catch (loginError) {
+      console.error('Erro ao atualizar último login:', loginError);
+      // Não é crítico, continuar
+    }
 
     res.status(201).json({
       success: true,
@@ -84,6 +111,7 @@ router.post("/register", async (req, res) => {
 
   } catch (error) {
     console.error('Erro no registo:', error);
+    console.error('Stack trace:', error.stack);
     
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
@@ -96,7 +124,11 @@ router.post("/register", async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Erro interno do servidor',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      details: process.env.NODE_ENV === 'development' ? {
+        name: error.name,
+        stack: error.stack
+      } : undefined
     });
   }
 });
